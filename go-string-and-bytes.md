@@ -70,7 +70,7 @@ func main() {
 7		func main() {
 8			str：= "hello world"
 9			bytes := []byte(str)
-10		   fmt.Println(str, bytes)
+10			fmt.Println(str, bytes)
 (gdb) b 8
 Breakpoint 1 at 0x47b7bf: file /root/gopath/src/zky/main.go, line 8.
 (gdb) r
@@ -219,7 +219,7 @@ func main() {
 # go build -gcflags "-N -l" -o main main.go
 # gdb main
 (gdb) l 14
-9			 x := (*[2]uintptr)(unsafe.Pointer(&str))
+9			x := (*[2]uintptr)(unsafe.Pointer(&str))
 10			h := [3]uintptr{x[0], x[1], x[1]}
 11			return *(*[]byte)(unsafe.Pointer(&h))
 12		}
