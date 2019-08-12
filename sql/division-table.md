@@ -1,4 +1,4 @@
-## 一种基于存储过程分表建表的的方法
+## 一种基于存储过程分表建表的方法
 
 本文讲述一种基于存储过程和mysql的的分表建表方法。相关背景如下：
 
@@ -13,7 +13,7 @@
 前面两点都很好实现，数据库表中设计namespace和name两个字段就可以解决，第三点需要分析以下几个问题：
 #### 1.基于什么分表？
 
-kubernetes中查询deployment资源时需要namespace，产品功能的定义也是基于namespace对deployment对数据库做增删改查，因此可以考虑根据namespace来对deployment分表，不同namespace下的deployment数据存储在不同的表中，根据namespace按一定规则（如hash）确定表名，确保同一namespace下的deployment存储在同一张表中。试想如果是根据deployment name来分表，产品上要查询某一命名空间下所有deployment的功能将无法实现（除非加另外的关系表）。
+kubernetes中查询deployment资源时需要namespace，产品功能的定义也是基于namespace对deployment对数据库做增删改查，因此可以考虑根据namespace来对deployment分表，不同namespace下的deployment数据存储在不同的表中，根据namespace按一定规则（如hash）确定表名，确保同一namespace下的deployment存储在同一张表中。试想如果是根据deployment name来分表，产品上要查询某一命名空间下所有deployment的功能将很难实现（deployment_0~deployment_31 32张表联合起来查询或者另外加关系表）。
 
 #### 2.表名如何设计？
 
@@ -97,4 +97,4 @@ CALL create_deployment_table();
 ```
 
 ### 总结
-在数据库分表的时候，如何分表，即根据什么信息分表是最为重要的，因为这影响到后续功能的实现；在代码中可以考虑用crc的方式做表名拼接；而在建表的时候，存储过程是一种比较优雅的实现方式。
+在数据库分表的时候，如何分表，即根据什么信息分表是最为重要的，因为这影响到后续功能的实现；在代码实现上可以考虑用crc计算后取余的方式做表名计算和拼接；而在建表的时候，存储过程是一种比较优雅的实现方式。
