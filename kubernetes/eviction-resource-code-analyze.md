@@ -18,6 +18,22 @@ kubelet配置参数：--eviction-hard。
 
 //todo：默认方式？
 
+### 几种pod类型
+1.critical pod
+2.static pod
+
+
+### ephemeral storage
+Kubernetes在1.8的版本中引入了一种类似于CPU，内存的新的资源模式：ephemeral-storage，并且在1.10的版本在kubelet中默认打开了这个特性。ephemeral-storage是为了管理和调度Kubernetes中运行的应用的短暂存储。在每个Kubernetes的节点上，kubelet的根目录(默认是/var/lib/kubelet)和日志目录(/var/log)保存在节点的主分区上，这个分区同时也会被Pod的EmptyDir类型的volume、容器日志、镜像的层、容器的可写层所占用。ephemeral-storage便是对这块主分区进行管理，通过应用定义的需求(requests)和约束(limits)来调度和管理节点上的应用对主分区的消耗。
+对于未配置单独的imagefs节点上的container而言，ephemeral storage包括root和logs
+
+### emptyDir
+EmptyDir类型的volume创建于pod被调度到某个宿主机上的时候，而同一个pod内的容器都能读写EmptyDir中的同一个文件。一旦这个pod离开了这个宿主机，EmptyDirr中的数据就会被永久删除。所以目前EmptyDir类型的volume主要用作临时空间，比如Web服务器写日志或者tmp文件需要的临时目录
+
+### local storage
+包含emptyDir、phemeral sotrage、root（imageFs可写层）、logs、本地卷
+
+
 ### 驱逐指标
 两种驱逐方式支持以下驱逐指标，相关定义在kubernetes/pkg/kubelet/eviction/api/types.go
 
