@@ -1,11 +1,54 @@
 ## kubelet pod驱逐（eviction）源码分析
-kubernetes版本：1.13.4
+本文基于kubernetes 1.13.4
+
+### 相关名词
+在正文开始之前，先补充几个名词：critical pod、static pod、QoS（Quality of Service）、node状态，了解这些名词对后续的eviction源码分析有一定作用。这些名词的定义在不同版本中可能会略有不同，在当前版本中定义如下：
+
+critical pod： 
+```
+  使能了PodPriority特性（FeatureGate，下同），pod的优先级（Priority，下同）不为空且大于2*10^9
+    或者
+  使能了ExperimentalCriticalPodAnnotation特性，改pod的命名空间是kube-system且该pod的annotation中有key为scheduler.alpha.kubernetes.io/critical-pod，value为空字符串的键值对
+```
+static pod：
+```
+  pod的annotation中kuberneteszhong kubernetes.io/config.source != api
+```
+[QoS（Quality of Service，服务质量）](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/)：
+```
+当kubernetes创建一个pod时，它就会给这个pod标注一个QoS等级，QoS有三个级别：
+Guaranteed：
+  pod中每个容器必须配置memory request和limit，而且必须相同
+  pod中每个容器必须必须配置cpu request和limit，而且必须相同
+Burstable：
+  该pod不满足Guaranteed的要球
+  至少一个container配置了cpu或者memory request
+BestEffort：
+  pod中container必须没有配置cpu或者memory的request或者limit
+```
+[node状态](https://kubernetes.io/docs/concepts/architecture/nodes/#condition)：
+```
+kubelet会定期上报node状态给kube-apiserver并存入etcd（本文只选取了与eviction有关的node状态），kube-scheduler watch到node condition pressure之后，会根据一下策略做pod的分配：
+memory pressure   ——不允许任何心得QoS为BestEffor的pod分配到该node
+disk pressure     ——不允许任何心得pod分配到该node
+```
 
 ### 什么是kubelet的驱逐？
-Kubelet能够监控node上资源消耗，来防止node资源被耗尽。一旦出现资源紧缺的迹象，Kubelet 就会主动终止一或多个 Pod 的运行，以回收紧张的资源。
-//todo：监控资源包括哪些？回收资源又包括哪些？
+正文开始。Kubelet能够监控node上资源消耗，来防止node资源被耗尽。一旦出现资源紧缺的迹象，Kubelet 就会主动终止一或多个 Pod 的运行，以回收紧张的资源。每个node节点上都会起一个kubelet进程，kubelet在启动的时候会创建一个eviction manager对象，并以携程的方式去做去住监控和处理。对于eviction manager来说，监控的资源有：
+```
+[kubernetes/pkg/kubelet/eviction/api/types.go]
+memory.available              ——可用内存
+nodefs.vaailable              ——系统可用的volume空间
+nodefs.inodesFree             ——inode可用的镜像空间
+imagefs.available             ——系统可用的镜像空间
+imagefs.inodesFree            ——镜像空间可用的inode
+allocatableMemory.available   ——可分配给pod的内存大小
+pid.available                 ——pid资源
+```
 
-### 驱逐方式
+【todo：后续内容待换新电脑后再整理更新粗来，现在的电脑上网太慢了】
+
+### kubelet驱逐方式
 1.软驱逐
 kubelet配置参数：--eviction-sof。
 其它参数：
