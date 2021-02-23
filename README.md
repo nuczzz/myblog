@@ -9,6 +9,5 @@ blog to record some interesting things.
 
 #### [docker镜像与containerd镜像](https://github.com/nuczzz/myblog/blob/master/kubernetes/docker-containerd-image.md)
 
-#### [TODO: kubelet eviction驱逐机制源码分析](https://github.com/nuczzz/myblog/blob/master/kubernetes/eviction-resource-code-analyze.md)
-
-#### ![containerd-kata创建sandbox](https://github.com/nuczzz/myblog/blob/master/kubernetes/pic/kubelet-containerd-kata-create-sandbox.jpg)
+#### containerd-kata创建sandbox流程
+![avater](https://github.com/nuczzz/myblog/blob/master/kubernetes/pic/kubelet-containerd-kata-create-sandbox.jpg)
