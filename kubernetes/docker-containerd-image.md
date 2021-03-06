@@ -52,7 +52,7 @@ docker操作image主要有以下命令：
 # docker images
 // 拉镜像
 # docker pull {image}
-// 推颈项
+// 推镜像
 # docker push {image}
 // 保存镜像为tar包
 # docker save -o {image.tar.gz} {image}
